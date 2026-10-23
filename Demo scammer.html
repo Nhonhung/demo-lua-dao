@@ -1,0 +1,624 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Demo Bẫy Việc Nhẹ Lương Cao</title>
+<style>
+  /*
+    Layout concept: a single scrolling "lure" page styled exactly like a real
+    recruitment-scam landing (urgency banner, fake countdown, fake payout
+    ticker, data-harvesting form) — but caged top and bottom by a fixed
+    education frame that cannot be scrolled away or removed, and the form
+    never leaves the browser: submitting swaps the page into an annotated
+    breakdown of every manipulation trick that was just used on the viewer.
+  */
+  :root{
+    --bg:#f6f3ec;
+    --surface:#ffffff;
+    --ink:#1b1d1f;
+    --ink-dim:#5b5f63;
+    --line:#e4ddcd;
+    --scam-accent:#1f8a4c;   /* the lure's own "trustworthy money" green */
+    --scam-accent-dim:#e9f7ee;
+    --danger:#c23b3b;
+    --danger-dim:#fdecec;
+    --warn-bg:#fff6da;
+    --warn-ink:#6b4e00;
+    --focus:#1f6feb;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#141311;
+      --surface:#1d1c19;
+      --ink:#f2efe6;
+      --ink-dim:#a9a69c;
+      --line:#34322c;
+      --scam-accent:#35c36f;
+      --scam-accent-dim:#133022;
+      --danger:#ff6b6b;
+      --danger-dim:#3a1414;
+      --warn-bg:#3a2f05;
+      --warn-ink:#ffe28a;
+      --focus:#5b9dff;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141311;
+    --surface:#1d1c19;
+    --ink:#f2efe6;
+    --ink-dim:#a9a69c;
+    --line:#34322c;
+    --scam-accent:#35c36f;
+    --scam-accent-dim:#133022;
+    --danger:#ff6b6b;
+    --danger-dim:#3a1414;
+    --warn-bg:#3a2f05;
+    --warn-ink:#ffe28a;
+    --focus:#5b9dff;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Be Vietnam Pro", "Inter", system-ui, -apple-system, sans-serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+  }
+  h1,h2,h3{
+    font-family:"Fraunces","Be Vietnam Pro",serif;
+    text-wrap:balance;
+    margin:0;
+  }
+  p{ margin:0; }
+  .wrap{ max-width:720px; margin:0 auto; padding-block:16px 40px; }
+
+  /* ---------- persistent education cage ---------- */
+  .edu-band{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:50;
+    background:var(--danger);
+    color:#fff;
+    font-weight:700;
+    font-size:0.85rem;
+    line-height:1.4;
+    padding:10px max(16px, env(safe-area-inset-left,0px));
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,.2);
+  }
+  .edu-band b{ text-decoration:underline; text-underline-offset:2px; }
+  body::before{
+    content:"";
+    position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px);
+    z-index:51; background:var(--danger);
+  }
+  .edu-footer{
+    margin-top:28px;
+    border:1px dashed var(--danger);
+    border-radius:14px;
+    padding:16px;
+    background:var(--danger-dim);
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .edu-footer .mark{
+    flex:0 0 auto;
+    width:34px;height:34px;border-radius:50%;
+    background:var(--danger); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:1.1rem;
+  }
+  .edu-footer p{ font-size:0.88rem; color:var(--ink); line-height:1.55; }
+  .edu-footer strong{ color:var(--danger); }
+
+  /* ---------- the lure page itself ---------- */
+  .brandbar{
+    display:flex; align-items:center; gap:8px;
+    padding-block:14px;
+    color:var(--ink-dim); font-size:0.8rem; font-weight:600;
+    letter-spacing:.02em;
+  }
+  .brandbar .dot{ width:8px;height:8px;border-radius:50%; background:var(--scam-accent); }
+
+  .ticker{
+    background:var(--scam-accent-dim);
+    border:1px solid var(--scam-accent);
+    color:var(--scam-accent);
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:0.78rem;
+    font-weight:700;
+    display:flex; align-items:center; gap:8px;
+    overflow:hidden;
+    white-space:nowrap;
+    margin-bottom:18px;
+  }
+  .ticker .pulse{
+    width:8px;height:8px;border-radius:50%;background:var(--scam-accent);
+    animation:pulse 1.4s ease-in-out infinite;
+    flex:0 0 auto;
+  }
+  @keyframes pulse{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.4; transform:scale(.7);} }
+  .ticker span{ overflow:hidden; text-overflow:ellipsis; }
+
+  .hero{
+    background:linear-gradient(165deg, var(--scam-accent-dim), var(--surface) 60%);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:28px 22px 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero .eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--scam-accent); color:#fff;
+    font-size:0.72rem; font-weight:800; letter-spacing:.06em;
+    padding:5px 10px; border-radius:999px; margin-bottom:14px;
+    text-transform:uppercase;
+  }
+  .hero h1{ font-size:clamp(1.5rem,5vw,2.1rem); font-weight:600; line-height:1.18; color:var(--ink); }
+  .hero h1 em{ font-style:normal; color:var(--scam-accent); }
+  .hero .sub{ margin-top:10px; color:var(--ink-dim); font-size:0.98rem; line-height:1.55; max-width:52ch; }
+
+  .countdown{
+    margin-top:18px;
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; padding:12px 14px;
+  }
+  .countdown .label{ font-size:0.78rem; color:var(--ink-dim); font-weight:600; }
+  .countdown .time{
+    font-variant-numeric:tabular-nums;
+    font-weight:800; font-size:1.15rem; color:var(--danger);
+    letter-spacing:.02em;
+  }
+
+  .stats{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    margin-top:18px;
+  }
+  .stat{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:12px 10px; text-align:center;
+  }
+  .stat .n{ font-size:1.25rem; font-weight:800; color:var(--scam-accent); font-variant-numeric:tabular-nums; }
+  .stat .l{ font-size:0.68rem; color:var(--ink-dim); margin-top:2px; font-weight:600; }
+
+  .cta-row{ margin-top:20px; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    background:var(--scam-accent); color:#fff; border:none;
+    font-size:1rem; font-weight:700; letter-spacing:.01em;
+    padding:15px 18px; border-radius:14px; cursor:pointer;
+    box-shadow:0 8px 20px -8px color-mix(in srgb, var(--scam-accent) 70%, transparent);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn:active{ transform:translateY(0); }
+  .btn:focus-visible{ outline:3px solid var(--focus); outline-offset:2px; }
+
+  section{ margin-top:28px; }
+  .section-title{ font-size:1.1rem; font-weight:600; margin-bottom:12px; }
+
+  .testimonials{ display:grid; gap:10px; }
+  .testi{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px; display:flex; gap:12px;
+  }
+  .testi .av{
+    flex:0 0 auto; width:38px;height:38px;border-radius:50%;
+    background:var(--scam-accent-dim); color:var(--scam-accent);
+    display:flex; align-items:center; justify-content:center; font-weight:800;
+  }
+  .testi .name{ font-weight:700; font-size:0.88rem; }
+  .testi .stars{ color:#f0a500; font-size:0.78rem; margin:2px 0 4px; letter-spacing:1px; }
+  .testi .txt{ font-size:0.86rem; color:var(--ink-dim); line-height:1.5; }
+
+  /* ---------- the form ---------- */
+  form{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:20px; display:flex; flex-direction:column; gap:14px;
+  }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{ font-size:0.82rem; font-weight:700; color:var(--ink); }
+  .field .hint{ font-size:0.72rem; color:var(--ink-dim); }
+  .field input{
+    border:1px solid var(--line); background:var(--bg); color:var(--ink);
+    border-radius:10px; padding:12px 13px; font-size:0.95rem;
+    font-family:inherit;
+  }
+  .field input:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+  .field.danger-field input{ border-color:var(--danger); }
+  .consent{
+    font-size:0.74rem; color:var(--ink-dim); line-height:1.5;
+    display:flex; gap:8px; align-items:flex-start;
+  }
+  .consent input{ margin-top:2px; }
+
+  /* red-flag tags revealed on hover/focus for live annotation, used after reveal */
+  .flagline{
+    display:none;
+    margin-top:4px; font-size:0.72rem; font-weight:700; color:var(--danger);
+    align-items:center; gap:4px;
+  }
+  .flagline::before{ content:"⚑"; }
+  [data-revealed="true"] .flagline{ display:flex; }
+  [data-revealed="true"] .field.danger-field input{
+    background:var(--danger-dim);
+  }
+
+  /* ---------- fake success / reward screen ---------- */
+  .success-screen{
+    display:none;
+    text-align:center;
+    background:var(--surface); border:1px solid var(--line); border-radius:22px;
+    padding:36px 22px 28px; position:relative; overflow:hidden;
+  }
+  .success-screen.show{ display:block; animation:pop .45s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes pop{ from{ opacity:0; transform:scale(.92) translateY(8px);} to{ opacity:1; transform:scale(1) translateY(0);} }
+  .check{
+    width:64px;height:64px;border-radius:50%;
+    background:var(--scam-accent); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 14px; font-size:1.8rem;
+    animation:checkpop .5s ease .1s both;
+  }
+  @keyframes checkpop{ 0%{ transform:scale(0);} 70%{ transform:scale(1.15);} 100%{ transform:scale(1);} }
+  .success-screen h2{ font-size:1.3rem; }
+  .success-screen .note{ margin-top:10px; color:var(--ink-dim); font-size:0.88rem; }
+  .confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .confetti-layer i{
+    position:absolute; top:-10%; width:8px; height:14px; border-radius:2px;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{ to{ transform:translateY(120vh) rotate(540deg); opacity:.3; } }
+
+  /* fake wallet card with the counting-up balance */
+  .acct-card{
+    margin:18px auto 0; max-width:320px;
+    background:linear-gradient(135deg, var(--scam-accent), color-mix(in srgb, var(--scam-accent) 70%, #0a3d22));
+    color:#fff; border-radius:16px; padding:18px 20px;
+    text-align:left;
+    box-shadow:0 10px 24px -10px color-mix(in srgb, var(--scam-accent) 60%, transparent);
+  }
+  .acct-label{ font-size:0.72rem; opacity:.85; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
+  .acct-balance{
+    margin-top:6px; font-size:2rem; font-weight:800;
+    font-variant-numeric:tabular-nums; letter-spacing:.01em;
+  }
+  .acct-number{ margin-top:10px; font-size:0.76rem; opacity:.85; font-variant-numeric:tabular-nums; }
+  .success-wait{
+    margin-top:14px; font-size:0.78rem; color:var(--ink-dim);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .success-wait .spin{
+    width:12px;height:12px;border-radius:50%;
+    border:2px solid var(--line); border-top-color:var(--scam-accent);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .reveal-btn{
+    margin-top:22px;
+    background:none; border:1.5px solid var(--danger); color:var(--danger);
+    font-weight:700; font-size:0.9rem; border-radius:12px;
+    padding:12px 18px; cursor:pointer; width:100%;
+  }
+  .reveal-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  /* ---------- fake account-locked alert ---------- */
+  .locked-screen{
+    display:none;
+    text-align:center;
+    background:var(--surface); border:1.5px solid var(--danger); border-radius:22px;
+    padding:34px 22px 26px; position:relative; overflow:hidden;
+  }
+  .locked-screen.show{ display:block; animation:pop .4s cubic-bezier(.2,1.4,.4,1), shake .5s ease .4s; }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+  .lock-icon{
+    width:64px;height:64px;border-radius:50%;
+    background:var(--danger-dim); color:var(--danger);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 14px; font-size:1.8rem;
+    animation:alertpulse 1.1s ease-in-out infinite;
+  }
+  @keyframes alertpulse{ 0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--danger) 45%, transparent);} 50%{ box-shadow:0 0 0 12px transparent;} }
+  .locked-screen h2{ font-size:1.2rem; color:var(--danger); }
+  .locked-sub{
+    margin-top:10px; font-size:1.05rem; font-weight:800; color:var(--danger);
+  }
+  .locked-note{ margin-top:8px; color:var(--ink-dim); font-size:0.86rem; line-height:1.5; max-width:46ch; margin-inline:auto; }
+
+  /* ---------- breakdown / reveal ---------- */
+  .breakdown{ display:none; margin-top:22px; }
+  .breakdown.show{ display:block; animation:fadein .4s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .breakdown-head{
+    background:var(--warn-bg); color:var(--warn-ink);
+    border-radius:16px; padding:16px; margin-bottom:14px;
+  }
+  .breakdown-head h2{ font-size:1.15rem; color:var(--warn-ink); }
+  .breakdown-head p{ font-size:0.88rem; margin-top:6px; line-height:1.55; }
+  .trick{
+    display:flex; gap:12px; background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; padding:14px; margin-bottom:10px;
+  }
+  .trick .num{
+    flex:0 0 auto; width:28px;height:28px;border-radius:50%;
+    background:var(--danger-dim); color:var(--danger); font-weight:800; font-size:0.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .trick h3{ font-size:0.92rem; font-weight:700; }
+  .trick p{ font-size:0.84rem; color:var(--ink-dim); margin-top:3px; line-height:1.5; }
+
+  .restart-btn{
+    margin-top:16px; width:100%;
+    background:var(--ink); color:var(--bg);
+    border:none; border-radius:12px; padding:13px; font-weight:700; cursor:pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap">
+
+<div class="edu-band">
+  ⚠️ <b>TRANG MÔ PHỎNG GIÁO DỤC</b> — dựng lại thủ đoạn lừa đảo để quay video. Không có dữ liệu nào được gửi đi hay lưu lại.
+</div>
+
+<div class="wrap">
+
+  <div class="brandbar"><span class="dot"></span> Mô phỏng — không phải trang tuyển dụng thật</div>
+
+  <!-- ====== LURE PAGE ====== -->
+  <div id="lure">
+    <div class="ticker"><span class="pulse"></span><span id="tickerText">Vừa có người nhận 350.000đ cách đây 2 phút…</span></div>
+
+    <div class="hero">
+      <span class="eyebrow">🔥 Tuyển gấp 20 suất cuối ngày</span>
+      <h1>Việc nhẹ lương cao — <em>200k–500k/ngày</em>, không cần vốn</h1>
+      <p class="sub">Chỉ cần Like & Share bài viết, không yêu cầu kinh nghiệm. Đăng ký ngay để nhận ưu đãi đặc biệt dành cho 20 người đăng ký sớm nhất hôm nay.</p>
+
+      <div class="countdown">
+        <span class="label">Ưu đãi kết thúc sau</span>
+        <span class="time" id="clock">09:59</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="n">4.9★</div><div class="l">Đánh giá</div></div>
+        <div class="stat"><div class="n">12.4K</div><div class="l">Đã tham gia</div></div>
+        <div class="stat"><div class="n">5 phút</div><div class="l">Nhận tiền</div></div>
+      </div>
+    </div>
+
+    <section>
+      <div class="section-title">Mọi người nói gì</div>
+      <div class="testimonials">
+        <div class="testi">
+          <div class="av">M</div>
+          <div>
+            <div class="name">Minh T.</div>
+            <div class="stars">★★★★★</div>
+            <div class="txt">Mình làm 2 ngày đã nhận tiền luôn, quá nhanh!</div>
+          </div>
+        </div>
+        <div class="testi">
+          <div class="av">H</div>
+          <div>
+            <div class="name">Hoa N.</div>
+            <div class="stars">★★★★★</div>
+            <div class="txt">Không cần vốn, học sinh làm vẫn ổn áp luôn ạ.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Đăng ký nhận thưởng ngay</div>
+      <form id="scamForm" novalidate data-revealed="false">
+        <div class="field">
+          <label for="f-name">Họ và tên</label>
+          <input id="f-name" name="name" type="text" placeholder="Nguyễn Văn A" autocomplete="off">
+          <span class="flagline">Thu thập danh tính thật để giả mạo hoặc rao bán</span>
+        </div>
+        <div class="field danger-field">
+          <label for="f-cccd">Số CCCD</label>
+          <input id="f-cccd" name="cccd" type="text" inputmode="numeric" placeholder="001xxxxxxxxx" autocomplete="off">
+          <span class="flagline">Không công ty tuyển dụng hợp pháp nào cần CCCD để "xác minh" ngay bước đăng ký</span>
+        </div>
+        <div class="field">
+          <label for="f-phone">Số điện thoại</label>
+          <input id="f-phone" name="phone" type="tel" placeholder="09xxxxxxxx" autocomplete="off">
+          <span class="flagline">Dùng để lừa tiếp qua cuộc gọi/SMS giả danh ngân hàng</span>
+        </div>
+        <div class="field danger-field">
+          <label for="f-pass">Mật khẩu Facebook (để xác minh)</label>
+          <input id="f-pass" name="pass" type="password" placeholder="••••••••" autocomplete="off">
+          <span class="flagline">Không nền tảng nào từng hỏi mật khẩu của nền tảng khác — đây là cách chiếm tài khoản</span>
+        </div>
+        <label class="consent">
+          <input type="checkbox" checked disabled>
+          Tôi đồng ý nhận thưởng và chia sẻ thông tin để xác minh danh tính.
+        </label>
+        <div class="cta-row">
+          <button type="submit" class="btn">Hoàn tất đăng ký &amp; nhận 200.000đ →</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- ====== FAKE SUCCESS: balance reveal ====== -->
+  <div class="success-screen" id="success">
+    <div class="confetti-layer" id="confetti"></div>
+    <div class="check">✓</div>
+    <h2>Chúc mừng, đăng ký thành công!</h2>
+    <div class="acct-card">
+      <div class="acct-label">Số dư ví thưởng</div>
+      <div class="acct-balance" id="balanceNum">0đ</div>
+      <div class="acct-number">Mã ví: <span id="acctId">—</span></div>
+    </div>
+    <p class="note">Tiền thưởng đang được xác nhận, vui lòng không tắt trang…</p>
+    <div class="success-wait"><span class="spin"></span><span>Đang đồng bộ tài khoản…</span></div>
+  </div>
+
+  <!-- ====== FAKE ACCOUNT-LOCKED ALERT (auto, ~30s after success) ====== -->
+  <div class="locked-screen" id="locked">
+    <div class="lock-icon">⚠</div>
+    <h2>Tài khoản của bạn đã bị đăng xuất trên thiết bị này!</h2>
+    <p class="locked-sub">Bạn đã bị lừa đảo!</p>
+    <p class="locked-note">Kẻ gian vừa dùng thông tin bạn điền để chiếm quyền truy cập tài khoản. Đây chính xác là điều xảy ra ngoài đời khi điền vào một trang như thế này.</p>
+    <button class="reveal-btn" id="revealBtn">⚑ Xem ngay điều gì vừa xảy ra</button>
+  </div>
+
+  <!-- ====== EDUCATIONAL BREAKDOWN ====== -->
+  <div class="breakdown" id="breakdown">
+    <div class="breakdown-head">
+      <h2>Đây là 6 chiêu trò bạn vừa trải qua</h2>
+      <p>Toàn bộ trang trên được dựng lại y hệt một trang lừa đảo thật, để nhận diện — không có thông tin nào của bạn được gửi đi.</p>
+    </div>
+
+    <div class="trick"><div class="num">1</div><div><h3>Tạo khan hiếm giả</h3><p>"20 suất cuối", đồng hồ đếm ngược khiến bạn vội vàng, không kịp suy nghĩ kỹ trước khi điền thông tin.</p></div></div>
+    <div class="trick"><div class="num">2</div><div><h3>Bằng chứng xã hội giả</h3><p>Đánh giá 4.9★, "12.400 người tham gia", tin nhắn "vừa có người nhận tiền" — toàn bộ số liệu và đánh giá đều dựng sẵn.</p></div></div>
+    <div class="trick"><div class="num">3</div><div><h3>Mồi "việc nhẹ lương cao"</h3><p>Hứa hẹn thu nhập phi lý (200–500k/ngày chỉ để Like, Share) — phi lý vì không công việc thật nào trả cao cho thao tác đơn giản như vậy.</p></div></div>
+    <div class="trick"><div class="num">4</div><div><h3>Xin CCCD để "xác minh"</h3><p>Không nền tảng tuyển dụng hợp pháp nào cần số CCCD ngay bước đăng ký — đây là cách thu thập dữ liệu để giả mạo giấy tờ hoặc vay tín dụng đen.</p></div></div>
+    <div class="trick"><div class="num">5</div><div><h3>Xin mật khẩu nền tảng khác</h3><p>"Nhập mật khẩu Facebook để xác minh" là dấu hiệu chiếm đoạt tài khoản — không trang web tuyển dụng nào cần mật khẩu của một nền tảng khác.</p></div></div>
+    <div class="trick"><div class="num">6</div><div><h3>Phần thưởng ảo tức thì</h3><p>Màn "nhận thưởng thành công" đánh vào cảm xúc vui mừng, khiến bạn tin tưởng và dễ dàng làm theo bước lừa tiếp theo.</p></div></div>
+
+    <div class="edu-footer">
+      <div class="mark">!</div>
+      <p>Gặp tình huống tương tự ngoài đời? Đừng điền thông tin. Chụp lại màn hình làm bằng chứng, chặn tài khoản, và báo cho thầy cô, gia đình hoặc gọi <strong>Tổng đài Quốc gia Bảo vệ Trẻ em 111</strong>.</p>
+    </div>
+
+    <button class="restart-btn" id="restartBtn">↺ Xem lại từ đầu</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- fake countdown ----
+  var clockEl = document.getElementById('clock');
+  var remaining = 9*60+59;
+  var timerId = setInterval(function(){
+    remaining = Math.max(0, remaining-1);
+    var m = String(Math.floor(remaining/60)).padStart(2,'0');
+    var s = String(remaining%60).padStart(2,'0');
+    clockEl.textContent = m+':'+s;
+    if(remaining<=0) clearInterval(timerId);
+  },1000);
+
+  // ---- fake live ticker ----
+  var names = ['Hùng N.','Lan P.','Tuấn V.','Mai K.','Quân D.','Trang L.'];
+  var amounts = ['200.000đ','350.000đ','500.000đ','250.000đ'];
+  var tickerEl = document.getElementById('tickerText');
+  setInterval(function(){
+    var n = names[Math.floor(Math.random()*names.length)];
+    var a = amounts[Math.floor(Math.random()*amounts.length)];
+    var m = Math.floor(Math.random()*5)+1;
+    tickerEl.textContent = 'Vừa có người nhận '+a+' cách đây '+m+' phút…';
+  }, 3200);
+
+  // ---- form: never submits anywhere, purely local ----
+  var form = document.getElementById('scamForm');
+  var lure = document.getElementById('lure');
+  var success = document.getElementById('success');
+  var locked = document.getElementById('locked');
+  var breakdown = document.getElementById('breakdown');
+  var balanceNum = document.getElementById('balanceNum');
+  var acctId = document.getElementById('acctId');
+  var confetti = document.getElementById('confetti');
+  var revealBtn = document.getElementById('revealBtn');
+
+  var LOCK_DELAY = 30000;   // 30s on the balance screen before it "locks"
+  var REVEAL_DELAY = 60000; // 1 more minute before the breakdown auto-opens
+  var lockTimer = null, revealTimer = null;
+
+  function spawnConfetti(){
+    var colors = ['#1f8a4c','#f0a500','#c23b3b','#1f6feb'];
+    confetti.innerHTML = '';
+    for(var i=0;i<36;i++){
+      var el = document.createElement('i');
+      el.style.left = (Math.random()*100)+'%';
+      el.style.background = colors[i%colors.length];
+      el.style.animationDuration = (1.6+Math.random()*1.2)+'s';
+      el.style.animationDelay = (Math.random()*0.4)+'s';
+      confetti.appendChild(el);
+    }
+  }
+
+  function fmtVND(n){ return n.toLocaleString('vi-VN')+'đ'; }
+
+  function animateBalance(target, duration){
+    var start = null;
+    function step(ts){
+      if(start===null) start = ts;
+      var p = Math.min((ts-start)/duration, 1);
+      var eased = 1 - Math.pow(1-p, 3);
+      balanceNum.textContent = fmtVND(Math.floor(eased*target));
+      if(p<1) requestAnimationFrame(step);
+      else balanceNum.textContent = fmtVND(target);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function randomAcctId(){
+    var digits = '';
+    for(var i=0;i<8;i++) digits += Math.floor(Math.random()*10);
+    return 'VÍ-'+digits;
+  }
+
+  function showBreakdown(){
+    clearTimeout(revealTimer);
+    locked.classList.remove('show');
+    breakdown.classList.add('show');
+    breakdown.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function showLocked(){
+    clearTimeout(lockTimer);
+    success.classList.remove('show');
+    locked.classList.add('show');
+    locked.scrollIntoView({behavior:'smooth', block:'start'});
+    revealTimer = setTimeout(showBreakdown, REVEAL_DELAY);
+  }
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    // Deliberately never read the field values into anything persistent —
+    // this demo never stores, sends, or logs what was typed.
+    var rewards = [200000, 350000, 500000];
+    var target = rewards[Math.floor(Math.random()*rewards.length)];
+    acctId.textContent = randomAcctId();
+    form.reset();
+    lure.style.display = 'none';
+    success.classList.add('show');
+    spawnConfetti();
+    animateBalance(target, 1600);
+    success.scrollIntoView({behavior:'smooth', block:'start'});
+    lockTimer = setTimeout(showLocked, LOCK_DELAY);
+  });
+
+  revealBtn.addEventListener('click', showBreakdown);
+
+  document.getElementById('restartBtn').addEventListener('click', function(){
+    clearTimeout(lockTimer);
+    clearTimeout(revealTimer);
+    breakdown.classList.remove('show');
+    locked.classList.remove('show');
+    success.classList.remove('show');
+    lure.style.display = '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+})();
+</script>
+
+</body></html>
